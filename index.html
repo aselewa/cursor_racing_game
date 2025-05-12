@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>2D Racing Game</title>
+    <style>
+        canvas {
+            border: 1px solid black;
+            display: block;
+            margin: 10px auto;
+        }
+        body {
+            background-color: #f0f0f0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        h1 {
+            color: #333;
+            font-family: Arial, sans-serif;
+            margin-bottom: 10px;
+        }
+        #resetBtn {
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        #resetBtn:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+    <h1>2D Racing Game</h1>
+    <canvas id="gameCanvas" width="600" height="600"></canvas>
+    <button id="resetBtn">Reset Race</button>
+    <script src="game.js"></script>
+</body>
+</html> 
