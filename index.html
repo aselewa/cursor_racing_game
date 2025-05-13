@@ -35,11 +35,16 @@
         #resetBtn:hover {
             background-color: #45a049;
         }
+        .instructions { margin-top: 10px; }
     </style>
 </head>
 <body>
     <h1>2D Racing Game</h1>
-    <canvas id="gameCanvas" width="600" height="600"></canvas>
+    <canvas id="gameCanvas" width="900" height="600"></canvas>
+    <div class="instructions">
+        <strong>Player 1 (blue):</strong> Arrow Up (accelerate), Arrow Left (left), Arrow Right (right)<br>
+        <strong>Player 2 (red):</strong> W (accelerate), A (left), D (right)<br>
+    </div>
     <button id="resetBtn">Reset Race</button>
     <script src="game.js"></script>
 </body>

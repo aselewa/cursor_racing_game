@@ -2,10 +2,45 @@
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 
+// Game state
+let gameStarted = false;
+let countDown = 3;
+let lastCountTime = 0;
+
+// Draw countdown
+function drawCountdown() {
+    ctx.font = 'bold 100px Arial';
+    ctx.fillStyle = '#FF0000';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(countDown, canvas.width/2, canvas.height/2);
+}
+
+// Create grass pattern
+const grassPattern = document.createElement('canvas');
+const patternCtx = grassPattern.getContext('2d');
+grassPattern.width = 20;
+grassPattern.height = 20;
+
+// Draw grass pattern
+patternCtx.fillStyle = '#90EE90';  // Light green base
+patternCtx.fillRect(0, 0, 20, 20);
+patternCtx.strokeStyle = '#228B22';  // Darker green strokes
+patternCtx.lineWidth = 1;
+// Add random grass strokes
+for (let i = 0; i < 5; i++) {
+    patternCtx.beginPath();
+    patternCtx.moveTo(Math.random() * 20, Math.random() * 20);
+    patternCtx.lineTo(Math.random() * 20, Math.random() * 20);
+    patternCtx.stroke();
+}
+
+const grassTexture = ctx.createPattern(grassPattern, 'repeat');
+
 // Track parameters
 const trackCenterX = canvas.width / 2;
 const trackCenterY = canvas.height / 2;
-const trackOuterRadiusX = 250;
+const trackOuterRadiusX = 450;
 const trackOuterRadiusY = 200;
 const trackWidth = 100;
 const trackInnerRadiusX = trackOuterRadiusX - trackWidth;
@@ -27,6 +62,8 @@ class Car {
     }
 
     update() {
+        if (!gameStarted) return;  // Don't update if game hasn't started
+        
         // Check if car is on track using elliptical bounds
         const normalizedX = (this.x - trackCenterX);
         const normalizedY = (this.y - trackCenterY);
@@ -153,23 +190,39 @@ document.getElementById('resetBtn').addEventListener('click', resetCars);
 
 // Draw track
 function drawTrack() {
-    // Draw outer ellipse
+    // Draw outer area (grass)
+    ctx.fillStyle = grassTexture;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    // Draw track (brown)
     ctx.beginPath();
     ctx.ellipse(trackCenterX, trackCenterY, trackOuterRadiusX, trackOuterRadiusY, 0, 0, Math.PI * 2);
-    ctx.fillStyle = '#87CEEB';
+    ctx.fillStyle = '#8B4513';  // Saddle brown
     ctx.fill();
 
-    // Draw inner ellipse
+    // Draw inner area (grass)
     ctx.beginPath();
     ctx.ellipse(trackCenterX, trackCenterY, trackInnerRadiusX, trackInnerRadiusY, 0, 0, Math.PI * 2);
-    ctx.fillStyle = '#FFFFFF';
+    ctx.fillStyle = grassTexture;
     ctx.fill();
+
+    // Draw lane markers
+    const midRadiusX = (trackOuterRadiusX + trackInnerRadiusX) / 2;
+    const midRadiusY = (trackOuterRadiusY + trackInnerRadiusY) / 2;
+    
+    ctx.beginPath();
+    ctx.setLineDash([20, 20]); // Create dashed line pattern
+    ctx.ellipse(trackCenterX, trackCenterY, midRadiusX, midRadiusY, 0, 0, Math.PI * 2);
+    ctx.strokeStyle = '#FFFFFF';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+    ctx.setLineDash([]); // Reset line dash
 
     // Draw starting line
     ctx.beginPath();
     ctx.moveTo(trackCenterX, trackCenterY + trackInnerRadiusY);
     ctx.lineTo(trackCenterX, trackCenterY + trackOuterRadiusY);
-    ctx.strokeStyle = '#000000';
+    ctx.strokeStyle = '#FFFFFF';
     ctx.lineWidth = 4;
     ctx.stroke();
 }
@@ -182,14 +235,35 @@ function gameLoop() {
     // Draw track
     drawTrack();
 
-    // Update and draw cars
-    car1.update();
-    car2.update();
-    car1.draw();
-    car2.draw();
+    if (!gameStarted) {
+        const currentTime = Date.now();
+        if (lastCountTime === 0) {
+            lastCountTime = currentTime;
+            drawCountdown();
+        } else if (currentTime - lastCountTime >= 1000) {
+            countDown--;
+            lastCountTime = currentTime;
+            if (countDown === 0) {
+                gameStarted = true;
+            }
+        }
+        if (!gameStarted) {
+            drawCountdown();
+        }
+        // Freeze cars during countdown
+        car1.draw();
+        car2.draw();
+    } else {
+        // Update and draw cars once game has started
+        car1.update();
+        car2.update();
+        car1.draw();
+        car2.draw();
+    }
 
     requestAnimationFrame(gameLoop);
 }
 
 // Start the game
+resetCars();
 gameLoop(); 
